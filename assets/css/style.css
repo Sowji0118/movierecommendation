@@ -1,0 +1,56 @@
+/* Netflix-inspired Custom CSS */
+:root {
+    --netflix-red: #e50914;
+    --netflix-black: #141414;
+    --netflix-grey: #808080;
+    --text-color: #ffffff;
+}
+
+.main {
+    background-color: var(--netflix-black);
+    color: var(--text-color);
+}
+
+h1, h2, h3 {
+    color: var(--netflix-red);
+    font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+.stButton>button {
+    background-color: var(--netflix-red);
+    color: white;
+    border-radius: 4px;
+    border: none;
+    padding: 10px 20px;
+    font-weight: bold;
+}
+
+.stButton>button:hover {
+    background-color: #f40612;
+    color: white;
+}
+
+.movie-card {
+    background-color: #181818;
+    border-radius: 8px;
+    padding: 10px;
+    margin-bottom: 20px;
+    transition: transform 0.3s;
+}
+
+.movie-card:hover {
+    transform: scale(1.05);
+    z-index: 10;
+}
+
+.movie-poster {
+    width: 100%;
+    border-radius: 4px;
+}
+
+.movie-title {
+    font-size: 1rem;
+    font-weight: bold;
+    margin-top: 10px;
+    color: white;
+}
