@@ -1,0 +1,219 @@
+/* Comprehensive Netflix-inspired Custom CSS */
+@import url('https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap');
+
+:root {
+    --netflix-red: #E50914;
+    --netflix-black: #141414;
+    --netflix-dark-grey: #181818;
+    --text-white: #FFFFFF;
+    --transition-speed: 0.3s;
+}
+
+/* Base Body Styling */
+.stApp {
+    background-color: var(--netflix-black);
+    color: var(--text-white);
+    font-family: 'Roboto', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+/* Hide Streamlit elements for a cleaner look */
+#MainMenu {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+/* Custom Scrollbar */
+::-webkit-scrollbar {
+    height: 8px;
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--netflix-black);
+}
+
+::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}
+
+/* Hero Banner */
+.hero-container {
+    position: relative;
+    width: 100%;
+    height: 60vh;
+    background-size: cover;
+    background-position: center;
+    border-radius: 8px;
+    margin-bottom: 40px;
+    display: flex;
+    align-items: flex-end;
+    overflow: hidden;
+}
+
+.hero-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(0deg, var(--netflix-black) 0%, transparent 60%);
+}
+
+.hero-content {
+    position: relative;
+    padding: 40px;
+    max-width: 600px;
+    z-index: 2;
+}
+
+.hero-title {
+    font-size: 3.5rem;
+    font-weight: 700;
+    margin-bottom: 10px;
+    color: var(--text-white);
+    text-transform: uppercase;
+}
+
+.hero-description {
+    font-size: 1.1rem;
+    margin-bottom: 20px;
+    color: #ccc;
+    line-height: 1.4;
+}
+
+/* Horizontal Movie Row */
+.row-container {
+    margin: 20px 0 40px 0;
+}
+
+.row-header {
+    font-size: 1.5rem;
+    font-weight: 700;
+    margin-bottom: 15px;
+    padding-left: 10px;
+    border-left: 4px solid var(--netflix-red);
+}
+
+.movie-row {
+    display: flex;
+    overflow-x: auto;
+    gap: 15px;
+    padding: 20px 10px;
+    scroll-behavior: smooth;
+    mask-image: linear-gradient(to right, black 85%, transparent 100%);
+}
+
+.movie-row::-webkit-scrollbar {
+    display: none;
+    /* Hide scrollbar for the rows */
+}
+
+/* Movie Card */
+.movie-card {
+    flex: 0 0 200px;
+    position: relative;
+    border-radius: 4px;
+    overflow: hidden;
+    transition: transform var(--transition-speed) cubic-bezier(0.25, 0.45, 0.45, 0.95);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.5);
+    cursor: pointer;
+    background-color: var(--netflix-dark-grey);
+}
+
+.movie-card:hover {
+    transform: scale(1.1);
+    z-index: 100;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.8);
+}
+
+.movie-poster {
+    width: 100%;
+    height: 300px;
+    object-fit: cover;
+    border-radius: 4px;
+}
+
+.movie-info {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    padding: 15px;
+    background: linear-gradient(0deg, rgba(0, 0, 0, 0.9) 0%, transparent 100%);
+    opacity: 0;
+    transition: opacity var(--transition-speed);
+}
+
+.movie-card:hover .movie-info {
+    opacity: 1;
+}
+
+.movie-title {
+    font-size: 0.9rem;
+    font-weight: 700;
+    color: var(--text-white);
+}
+
+.movie-rating {
+    font-size: 0.8rem;
+    font-weight: bold;
+    color: #46d369;
+    /* Netflix match green */
+    margin-top: 5px;
+}
+
+/* Loading Animation */
+.netflix-loader {
+    width: 50px;
+    height: 50px;
+    border: 3px solid rgba(229, 9, 20, 0.3);
+    border-radius: 50%;
+    border-top-color: var(--netflix-red);
+    animation: spin 1s ease-in-out infinite;
+    margin: 40px auto;
+}
+
+@keyframes spin {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Responsive Grid Fallback */
+.responsive-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 20px;
+    padding: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    .hero-title {
+        font-size: 2rem;
+    }
+
+    .hero-container {
+        height: 40vh;
+    }
+
+    .movie-card {
+        flex: 0 0 150px;
+    }
+
+    .movie-poster {
+        height: 220px;
+    }
+}

@@ -1,97 +1,95 @@
 import streamlit as st
-import pandas as pd
 import os
-from src.recommender_content import ContentRecommender
-from src.recommender_collaborative import CollaborativeRecommender
-from src.recommender_hybrid import HybridRecommender
+from src import config
 
 # Page Configuration
 st.set_page_config(
-    page_title="Netflix AI Recommender",
+    page_title=f"{config.APP_TITLE} - Login",
     page_icon="🎬",
-    layout="wide",
-    initial_sidebar_state="collapsed"
+    layout="centered"
 )
 
+# Demo User Store (Username: Password)
+USER_DB = {
+    "admin": "admin123",
+    "guest": "guest123",
+    "user1": "pass123"
+}
+
+# User Mapping (Username: User_ID for recommendation logic)
+USER_IDS = {
+    "admin": 1,
+    "guest": 2,
+    "user1": 3
+}
+
 # Load Custom CSS
+@st.cache_data(show_spinner=False)
 def local_css(file_name):
-    with open(file_name) as f:
-        st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
+    if os.path.exists(file_name):
+        with open(file_name) as f:
+            st.markdown(f'<style>{f.read()}</style>', unsafe_allow_html=True)
 
-local_css("assets/css/style.css")
+local_css(config.CSS_PATH)
 
-# Initialize Session State
-if 'user_id' not in st.session_state:
-    st.session_state['user_id'] = 1
+# Session State Initialization
 if 'authenticated' not in st.session_state:
     st.session_state['authenticated'] = False
+if 'username' not in st.session_state:
+    st.session_state['username'] = None
+if 'user_id' not in st.session_state:
+    st.session_state['user_id'] = None
 
-# Data Loading
-@st.cache_resource
-def load_engines():
-    m_df = pd.read_csv('data/movies.csv')
-    r_df = pd.read_csv('data/ratings.csv')
-    
-    cr = ContentRecommender(m_df)
-    cr.fit()
-    
-    colr = CollaborativeRecommender(r_df)
-    colr.fit()
-    
-    hr = HybridRecommender(cr, colr)
-    return hr, m_df
-
-hybrid_engine, movies_df = load_engines()
-
-# Header
-st.markdown("<h1 style='text-align: center;'>NETFLIX</h1>", unsafe_allow_html=True)
-st.markdown("<p style='text-align: center; color: grey;'>AI-Powered Movie Recommendations</p>", unsafe_allow_html=True)
-
-# Main Navigation
-menu = ["Home", "Dashboard", "Login"]
-choice = st.sidebar.selectbox("Navigation", menu)
-
-if choice == "Home":
-    st.subheader("Trending Now")
-    
-    # Hero Section
-    cols = st.columns([2, 1])
-    with cols[0]:
-        st.image("https://images.unsplash.com/photo-1485846234645-a62644f84728?auto=format&fit=crop&w=800&q=80", use_container_width=True)
-    with cols[1]:
-        st.title("The Dark Knight")
-        st.write("When the menace known as the Joker wreaks havoc and chaos on the people of Gotham, Batman must accept one of the greatest psychological and physical tests of his ability to fight injustice.")
-        if st.button("Watch Now"):
-            st.success("Redirecting to player...")
-            
-    st.divider()
-    
-    st.subheader("Personalized Picks for You")
-    # Get hybrid recommendations based on a seed movie for the home page demo
-    recs = hybrid_engine.get_recommendations(st.session_state['user_id'], 'The Dark Knight', movies_df, top_n=5)
-    
-    rec_cols = st.columns(5)
-    for i, rec in enumerate(recs):
-        with rec_cols[i]:
-            st.markdown(f"""
-            <div class="movie-card">
-                <img src="https://via.placeholder.com/200x300?text={rec['title']}" class="movie-poster">
-                <div class="movie-title">{rec['title']}</div>
-            </div>
-            """, unsafe_allow_html=True)
-
-elif choice == "Dashboard":
-    if not st.session_state['authenticated']:
-        st.warning("Please login to see your personalized dashboard.")
-    else:
-        st.title(f"Welcome back, User {st.session_state['user_id']}")
-        # Dashboard logic...
-
-elif choice == "Login":
-    st.title("Login")
-    username = st.text_input("Username")
-    password = st.text_input("Password", type='password')
-    if st.button("Sign In"):
+# Authentication Logic
+def login_user(username, password):
+    if username in USER_DB and USER_DB[username] == password:
         st.session_state['authenticated'] = True
-        st.success("Successfully logged in!")
-        st.rerun()
+        st.session_state['username'] = username
+        st.session_state['user_id'] = USER_IDS[username]
+        return True
+    return False
+
+def logout_user():
+    st.session_state['authenticated'] = False
+    st.session_state['username'] = None
+    st.session_state['user_id'] = None
+    st.rerun()
+
+# UI Layout
+if not st.session_state['authenticated']:
+    st.markdown(f"<h1 style='text-align: center; color: {config.APP_THEME_COLOR};'>NETFLIX</h1>", unsafe_allow_html=True)
+    st.markdown("<h3 style='text-align: center;'>Sign In</h3>", unsafe_allow_html=True)
+    
+    with st.container():
+        st.write("---")
+        username_input = st.text_input("Username")
+        password_input = st.text_input("Password", type="password")
+        
+        col1, col2 = st.columns([1, 1])
+        with col1:
+            if st.button("Sign In", use_container_width=True):
+                if login_user(username_input, password_input):
+                    st.success(f"Welcome back, {username_input}!")
+                    st.rerun()
+                else:
+                    st.error("Invalid username or password.")
+        with col2:
+            st.button("Need help?", use_container_width=True)
+        
+        st.markdown("<br><p style='text-align: center; color: grey;'>Demo users: admin/admin123, guest/guest123</p>", unsafe_allow_html=True)
+
+else:
+    st.markdown("<h1 style='text-align: center; color: #E50914;'>Your Profile</h1>", unsafe_allow_html=True)
+    st.success(f"Logged in as: **{st.session_state['username']}** (User ID: {st.session_state['user_id']})")
+    
+    st.info("💡 Navigation Tip: Use the sidebar to go to the **Home** or **Dashboard** pages.")
+    
+    if st.button("Sign Out", use_container_width=True):
+        logout_user()
+
+# Sidebar Navigation Hint
+st.sidebar.markdown("<h2 style='color: #E50914;'>NETFLIX AI</h2>", unsafe_allow_html=True)
+if st.session_state['authenticated']:
+    st.sidebar.write(f"Logged in: {st.session_state['username']}")
+else:
+    st.sidebar.warning("Please Sign In")
